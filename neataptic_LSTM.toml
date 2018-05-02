@@ -1,0 +1,19 @@
+#NN Settings
+batchSize = 1
+hiddenLayers = 10
+lookAheadCandles = 5
+iterations = 200
+error = 0.0000018
+learnRate = 0.8
+momentum = 0.3
+dropout = 0.3
+max_possible_price = 0.00024
+
+#Strat Settings
+long_at_percent = 0.05
+short_at_percent = 0.05
+stopLoss = 1
+
+#Indicator Settings
+RSI = [14]
+SMA = [14]
