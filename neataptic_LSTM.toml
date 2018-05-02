@@ -1,14 +1,17 @@
 #NN Settings
+skip_training = false
+log = 10
 batchSize = 1
-hiddenLayers = 10
+hiddenLayers = 13
 lookAheadCandles = 5
 iterations = 200
-error = 0.002
-learnRate = 0.8
-momentum = 0.3
+error = 0.0000018
+learnRate = 0.05
+momentum = 0.1
 dropout = 0.3
 max_possible_price = 0.00024
 
 #Strat Settings
 long_at_percent = 0.05
 short_at_percent = 0.05
+
