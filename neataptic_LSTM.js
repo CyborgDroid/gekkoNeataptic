@@ -6,11 +6,10 @@ const strat = {
   init() {
     this.name = 'Neataptic_LSTM';
     this.requiredHistory = config.tradingAdvisor.historySize;
-
-    config.batchSize = this.settings.batchSize;
     config.silent = true;
     config.debug = false;
     this.addIndicator('neat', 'NEAT_LSTM', {
+      batchSize: this.settings.batchSize,
       hiddenLayers: this.settings.hiddenLayers,
       lookAhead: this.settings.lookAheadCandles,
       iterations: this.settings.iterations,
@@ -18,16 +17,13 @@ const strat = {
       rate: this.settings.learnRate,
       momentum: this.settings.momentum,
       history: config.tradingAdvisor.historySize,
-      rsi: this.settings.RSI,
-      sma: this.settings.SMA,
       dropout: this.settings.dropout,
       max_possible_price: this.settings.max_possible_price,
       asset: config.watch.asset,
       currency: config.watch.currency
     });
-    this.position = 'none';
-    this.longAt = 0;
-    this.stopLossTimes = 0;
+    this.last_action = 'none';
+    this.action_price = false;
 
     this.startTime = new Date();
   },
@@ -35,10 +31,6 @@ const strat = {
   check(candle) {
     if (this.candle.close.length < this.requiredHistory) {
       return;
-    }
-    if (this.prevAction === 'buy' && candle.low < (1+this.settings.stopLoss) * this.prevPrice){
-      this.stopLossTimes++;
-      advice('short');
     }
     if (!this.indicators.neat.prediction){
       console.log("NO PREDICTION");
@@ -53,14 +45,10 @@ const strat = {
       const short = candle.close*(1 - this.settings.short_at_percent) > low_prediction ? true : false,
             long = candle.close*(1 + this.settings.long_at_percent) < high_prediction ? true : false;
 
-      if (short && this.position !== 'short') {
-        this.position = 'short';
-        this.shortAt = candle.close;
+      if (short && this.last_action !== 'sell') {
         this.advice('short');
       } else 
-      if (long && this.position !== 'long') {
-        this.position = 'long';
-        this.longAt = candle.close;
+      if (long && this.last_action !== 'buy') {
         this.advice('long');
       }
     }
@@ -78,10 +66,15 @@ const strat = {
 
     minutes < 1 ? str = seconds.toFixed(2) + ' seconds' : str = minutes.toFixed(2) + ' minutes';
 
-    log.info('====================================');
-    log.info('Finished in ' + str + ' stopped loss ' + this.stopLossTimes + ' times');
-    log.info('====================================');
-  }
+    log.info('=======================');
+    log.info('Finished in ' + str );
+    log.info('=======================');
+  },
+  onTrade (event){
+    log.debug(event.date.format(), event + ' at: ', event.price.toFixed(8));
+    this.trend.last_action = event.action;
+    this.trend.action_price = event.price;
+}
 }
 
 module.exports = strat;
