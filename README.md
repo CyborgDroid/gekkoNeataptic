@@ -13,4 +13,5 @@ You must create a folder called NEAT_NNs inside your indicators folder for the n
 NOTE: predictions are very innaccurate, do not use for trading!
 
 TO TRAIN: Backtest with a huge history size.
+
 ONCE TRAINED: Backtest with history size = 1. 
