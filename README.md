@@ -10,8 +10,8 @@ and the future price can exceed past prices. This is used to normalize the price
 
 You must create a folder called NEAT_NNs inside your indicators folder for the neural nets to be saved.
 
-NOTE: predictions are very innaccurate, do not use for trading!
-
 TO TRAIN: Backtest with a huge history size.
 
 ONCE TRAINED: Backtest with history size = 1. 
+
+NOTE: predictions are not reliable, do not use for trading!
