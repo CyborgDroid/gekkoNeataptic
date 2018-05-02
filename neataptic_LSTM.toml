@@ -12,8 +12,3 @@ max_possible_price = 0.00024
 #Strat Settings
 long_at_percent = 0.05
 short_at_percent = 0.05
-stopLoss = 1
-
-#Indicator Settings
-RSI = [14]
-SMA = [14]
