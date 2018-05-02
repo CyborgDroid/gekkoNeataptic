@@ -23,11 +23,9 @@ class Indicator {
     this.trainingDataCount = 0;
     this.dividers = {
       price: config.max_possible_price,
-      volume: Number.NEGATIVE_INFINITY,
-      trades: Number.NEGATIVE_INFINITY
     };
     this.trainConfig = {
-      log: 10,
+      log: this.config.nn_log,
       batchSize: this.config.batchSize,
       iterations: this.config.iterations,
       error: this.config.error,
@@ -65,10 +63,15 @@ class Indicator {
     file_desc + '.txt' 
 
     if (fs.existsSync(this.file_name)) {
-      console.log('file exists: ', this.file_name);
+      console.log('**** NN FILE EXISTS: ', this.file_name);
       this.network = this.openSavedNetwork();
+      //if file exists and skip training is set to true, skip training.
+      if (this.config.skip_training){
+        this.nn_trained = this.config.skip_training;
+        console.log('**** SKIP TRAINING: ', this.config.skip_training);
+      }
     } else {
-      console.log('!!! NEW NN', this.file_name);
+      console.log('**** NEW NN: ', this.file_name);
       this.network = new neataptic.architect.LSTM(...layers);
     }
   }
@@ -77,13 +80,14 @@ class Indicator {
     var json_network = this.network.toJSON();
     fs.writeFile(this.file_name, JSON.stringify(json_network), (err) => {
       if (err) throw err;
-      console.log('NN has been saved to ', this.file_name);
+      console.log('**** NN SAVED TO: ', this.file_name);
     });
+
   }
 
   openSavedNetwork(){
     let savedNetwork = neataptic.Network.fromJSON(JSON.parse(fs.readFileSync(this.file_name, 'utf8')));
-    console.log('Opened Network: ', this.file_name);
+    console.log('**** Opened Network: ', this.file_name);
     return savedNetwork;
   }
 
@@ -92,6 +96,7 @@ class Indicator {
     ret = ret.map(item => {
       return item * this.dividers.price;
     });
+
     this.prediction = ret;
   }
 
@@ -102,6 +107,7 @@ class Indicator {
     //Make sure we have enough data to make a prediction and check it for learning
     if (parseInt(this.config.lookAhead) && normalizedData.length > this.config.lookAhead) {
       const trainingData = [];
+
       for (let i = 0, iLen = normalizedData.length - this.config.lookAhead; i < iLen; i++) {
         const input = normalizedData[i];
         const output = [];
@@ -149,13 +155,7 @@ class Indicator {
 
   }
 
-  /**
-   * Calculates normalized inputs for a single candle
-   * 
-   * @param {object} candle - Candle data. Must have {high, low, close, open, volume, trades}
-   * @param {object} dividers - Dividers used for normalizing. Must have {high, low, close, open, volume, trades}
-   * @returns {object}
-   */
+
   normalizeCandle(candle) {
     let ret = [];
     //**** ALL PRICE METIRCS:
@@ -167,11 +167,6 @@ class Indicator {
     return ret;
   }
 
-  /**
-   * Update function run on every new candle
-   * 
-   * @param {object} candle - Candle data. Must have {high, low, close, open, volume, trades}
-   */
   update(candle) {
       this.raw_count++;
       const newCandle = Object.assign({}, candle);
